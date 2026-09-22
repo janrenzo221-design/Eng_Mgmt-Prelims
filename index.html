@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Management Quiz - Prelim</title>
+<style>
+  :root {
+    --bg-1: #0b0c1e;
+    --bg-2: #1a0f2e;
+    --card: #151328;
+    --card-border: #2c2350;
+    --violet: #7c5cff;
+    --violet-dark: #5c3fe0;
+    --pink: #ff4fd8;
+    --cyan: #4fe0ff;
+    --green: #35e0a0;
+    --red: #ff5c7a;
+    --text: #ece9ff;
+    --muted: #9c95c9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(circle at 20% 0%, #241a44 0%, var(--bg-2) 35%, var(--bg-1) 100%);
+    min-height: 100vh;
+    color: var(--text);
+    padding: 24px 12px;
+  }
+  .app { max-width: 760px; margin: 0 auto; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.45), 0 0 60px rgba(124,92,255,0.08);
+    padding: 34px 30px;
+  }
+  h1 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    text-align: center;
+    background: linear-gradient(90deg, var(--violet), var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-size: 0.98rem;
+  }
+  .home-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 22px; }
+  .quiz-option {
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.08), rgba(255,79,216,0.05));
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .quiz-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124,92,255,0.28);
+    border-color: var(--violet);
+  }
+  .quiz-option .info h3 { margin: 0 0 4px 0; font-size: 1.1rem; color: #fff; }
+  .quiz-option .info p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+  .btn {
+    background: linear-gradient(90deg, var(--violet), var(--pink));
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: filter .15s ease, transform .1s ease;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:active { transform: scale(0.98); }
+  .btn.secondary {
+    background: #201c3d;
+    color: var(--text);
+    border: 1px solid var(--card-border);
+  }
+  .btn.secondary:hover { filter: none; background: #2a2450; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+  .options-section {
+    border: 1px dashed var(--card-border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-top: 6px;
+  }
+  .options-section h3 { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.95rem; }
+  .option-row input[type="checkbox"] {
+    width: 18px; height: 18px; accent-color: var(--violet); cursor: pointer;
+  }
+  .option-row label { cursor: pointer; }
+  .options-hint { font-size: 0.8rem; color: var(--muted); margin: 6px 0 0 28px; }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 0.92rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .progress-bar-track {
+    background: #201c3d;
+    border-radius: 8px;
+    height: 8px;
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--violet), var(--pink));
+    height: 100%;
+    border-radius: 8px;
+    transition: width .2s ease;
+  }
+  .question-text {
+    font-size: 1.12rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .option-btn {
+    text-align: left;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: #1b1836;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.98rem;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .option-btn:hover { border-color: var(--violet); }
+  .option-btn.selected { border-color: var(--violet); background: #262048; }
+  .option-btn.correct { border-color: var(--green); background: rgba(53,224,160,0.12); color: #b6ffe4; }
+  .option-btn.incorrect { border-color: var(--red); background: rgba(255,92,122,0.12); color: #ffc2cd; }
+  .option-btn:disabled { cursor: default; }
+
+  input[type="text"].id-input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: #1b1836;
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: 14px;
+  }
+  input[type="text"].id-input::placeholder { color: var(--muted); }
+  input[type="text"].id-input:focus { outline: none; border-color: var(--violet); }
+  input[type="text"].id-input.correct { border-color: var(--green); background: rgba(53,224,160,0.1); }
+  input[type="text"].id-input.incorrect { border-color: var(--red); background: rgba(255,92,122,0.1); }
+
+  .feedback {
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: rgba(53,224,160,0.12); color: #7dffcf; }
+  .feedback.incorrect { background: rgba(255,92,122,0.12); color: #ffb0be; }
+  .feedback .answer-line { margin-top: 4px; font-weight: 600; }
+
+  .controls { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .controls-left, .controls-right { display: flex; gap: 10px; }
+
+  .jump-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 22px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--card-border);
+  }
+  .jump-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: #1b1836;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .jump-btn.current { border-color: var(--violet); font-weight: 700; color: #fff; }
+  .jump-btn.answered-correct { background: rgba(53,224,160,0.15); border-color: var(--green); color: #b6ffe4; }
+  .jump-btn.answered-incorrect { background: rgba(255,92,122,0.15); border-color: var(--red); color: #ffc2cd; }
+
+  .result-score {
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin: 10px 0 4px 0;
+    background: linear-gradient(90deg, var(--violet), var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .result-pct { text-align: center; color: var(--muted); margin-bottom: 6px; }
+  .result-msg { text-align: center; font-size: 1.1rem; margin-bottom: 24px; font-weight: 600; color: #fff; }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .review-list { margin-top: 24px; max-height: 340px; overflow-y: auto; border-top: 1px solid var(--card-border); padding-top: 16px; }
+  .review-item { padding: 10px 0; border-bottom: 1px solid #221d40; font-size: 0.9rem; }
+  .review-item .q { font-weight: 600; margin-bottom: 4px; color: #fff; }
+  .review-item .ans-wrong { color: var(--red); }
+  .review-item .ans-right { color: var(--green); }
+
+  .hidden { display: none !important; }
+  .back-link {
+    display: inline-block;
+    margin-top: 18px;
+    text-align: center;
+    width: 100%;
+    color: var(--cyan);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .hint { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; }
+  footer { text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+
+    <!-- HOME SCREEN -->
+    <div id="home-screen">
+      <h1>Engineering Management</h1>
+      <p class="subtitle">Prelim Reviewer &mdash; Management Basics, Styles, Roles &amp; Skills</p>
+      <div class="home-list">
+        <div class="quiz-option">
+          <div class="info">
+            <h3>Prelim &mdash; Identification</h3>
+            <p>100 items &middot; type the term/answer</p>
+          </div>
+          <button class="btn" onclick="startQuiz('identification')">Start Quiz</button>
+        </div>
+        <div class="quiz-option">
+          <div class="info">
+            <h3>Prelim &mdash; Multiple Choice</h3>
+            <p>50 items &middot; choose the correct option</p>
+          </div>
+          <button class="btn" onclick="startQuiz('mc')">Start Quiz</button>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <h3>Options</h3>
+        <div class="option-row">
+          <input type="checkbox" id="shuffle-question-order">
+          <label for="shuffle-question-order">Shuffle question order</label>
+        </div>
+        <div class="option-row">
+          <input type="checkbox" id="shuffle-answer-choices">
+          <label for="shuffle-answer-choices">Shuffle answer choices</label>
+        </div>
+        <p class="options-hint">Both options apply to whichever quiz you start next. Shuffling answer choices only affects the Multiple Choice quiz.</p>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="hidden">
+      <div class="quiz-header">
+        <span id="quiz-title-label"></span>
+        <span id="quiz-score-label">Score: 0</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+
+      <div class="question-text" id="question-text"></div>
+
+      <!-- MC options -->
+      <div class="options hidden" id="options-container"></div>
+
+      <!-- Identification input -->
+      <div id="id-container" class="hidden">
+        <p class="hint">Type your answer, then press Submit.</p>
+        <input type="text" class="id-input" id="id-input" placeholder="Your answer..." autocomplete="off">
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="controls">
+        <div class="controls-left">
+          <button class="btn secondary" id="prev-btn" onclick="goPrev()">&larr; Previous</button>
+          <button class="btn secondary" id="next-btn" onclick="goNext()">Next &rarr;</button>
+        </div>
+        <div class="controls-right">
+          <button class="btn" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+          <button class="btn" id="finish-btn" onclick="finishQuiz()" style="display:none;">Finish Quiz</button>
+        </div>
+      </div>
+
+      <div class="jump-grid" id="jump-grid"></div>
+      <div class="back-link" onclick="goHome()">&larr; Back to Home</div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="results-screen" class="hidden">
+      <h1>Quiz Complete!</h1>
+      <div class="result-score" id="result-score">0 / 0</div>
+      <div class="result-pct" id="result-pct"></div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-actions">
+        <button class="btn" onclick="retakeQuiz()">Retake Quiz</button>
+        <button class="btn secondary" onclick="goHome()">Back to Home</button>
+      </div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+
+  </div>
+  <footer>Engineering Management &middot; Prelim Reviewer &middot; Works fully offline</footer>
+</div>
+
+<script>
+/* ================= QUESTION DATA ================= */
+const QUIZ_DATA = {"identification": [{"q": "This term refers to the activity combining technical knowledge with the ability to organize and coordinate worker power, materials, machinery, and money.", "a": ["Engineering management"]}, {"q": "According to the lecture, management may be defined as this kind of process of planning, organizing, leading, and controlling an organization's resources to achieve its mission and objectives.", "a": ["creative problem-solving process", "creative problem solving process"]}, {"q": "Management is a process consisting of planning, organizing, directing (or leading), and this fourth function.", "a": ["Controlling"]}, {"q": "The top position an engineer manager may hope to occupy, according to the lecture, is the general managership or this position of any firm.", "a": ["Presidency", "President"]}, {"q": "This researcher/theorist indicates at least three general preconditions for achieving lasting success as a manager.", "a": ["Kreitner"]}, {"q": "Name the three general preconditions for achieving lasting success as a manager identified by Kreitner (give all three).", "a": ["ability, motivation to manage, and opportunity", "ability, motivation, opportunity"]}, {"q": "Managerial ability refers to the capacity of an engineer manager to achieve organizational objectives effectively and what other quality?", "a": ["Efficiently", "Efficiency"]}, {"q": "According to Higgins, this term describes \"whether objectives are accomplished.\"", "a": ["Effectiveness"]}, {"q": "This term is a description of the relative amount of resources used in obtaining effectiveness.", "a": ["Efficiency"]}, {"q": "This management researcher developed a psychometric instrument to measure objectively an individual's motivation to manage.", "a": ["John B. Miner", "Miner"]}, {"q": "In Miner's motivation-to-manage instrument, high scores in its dimensions are associated with high what?", "a": ["Motivation to manage"]}, {"q": "Give one of the two requirements of \"opportunity\" as a precondition for successful management: obtaining a suitable managerial job, and finding this kind of climate once on the job.", "a": ["Supportive climate", "supportive"]}, {"q": "Successful engineering managers do not happen as a matter of chance, although this factor is described as a contributory factor.", "a": ["Luck"]}, {"q": "If a civil engineer finishes a 100-kilometer road cementing project within the required eight months, he is said to be this (accomplishing the objective).", "a": ["Effective", "Effectiveness"]}, {"q": "This is the most top-down management style, where the manager centralizes the decision-making process.", "a": ["Autocratic management style", "Autocratic"]}, {"q": "The autocratic management style is best for situations where decisions need to be made quickly, especially in this type of situation.", "a": ["Crisis situations", "crisis"]}, {"q": "This type of autocratic management style puts decision-making totally in the hands of managers but encourages them to share the logic and rationale behind their decisions.", "a": ["Persuasive management style", "Persuasive"]}, {"q": "The persuasive management style is best for managers leading this type of team.", "a": ["A more inexperienced team", "inexperienced team"]}, {"q": "This type of autocratic management style is a form of unilateral decision-making where the team's best interests are always kept in mind, though there is no collaboration on the decision itself.", "a": ["Paternalistic management style", "Paternalistic"]}, {"q": "The paternalistic management style is best for organizations with a strong what?", "a": ["Company culture", "strong company culture"]}, {"q": "This management style, also called participative, has managers collaborate with team members to distribute the decision-making process.", "a": ["Democratic management style", "Democratic", "Participative management style"]}, {"q": "The democratic management style is best for teams that are constantly looking to do what?", "a": ["Change and improve their processes", "change and improve"]}, {"q": "This is a subset of the democratic management style where managers are consistently looking for feedback from their team and rarely make decisions alone.", "a": ["Consultative management style", "Consultative"]}, {"q": "The consultative management style is best for managers who want to take on more of this kind of role.", "a": ["Mentor role", "mentor"]}, {"q": "This type of democratic management style, used predominantly among creative teams, strives to create a culture that encourages adaptability, innovation, and problem-solving.", "a": ["Transformational management style", "Transformational"]}, {"q": "The transformational management style is best for teams described as fast-moving and what else?", "a": ["Intrinsically-motivated", "intrinsically motivated"]}, {"q": "This management style is the most hands-off, and the term literally translates to \"let it go\" in French.", "a": ["Laissez-faire management style", "Laissez-faire"]}, {"q": "The laissez-faire management style is best for self-motivated teams described by what other trait?", "a": ["Creative", "creative teams"]}, {"q": "This type of laissez-faire management style is less concerned with day-to-day operations and more interested in educating team members about the larger vision of the organization.", "a": ["Visionary management style", "Visionary"]}, {"q": "The visionary management style is best for innovative teams looking to do what to an industry?", "a": ["Disrupt an industry", "disrupt"]}, {"q": "This type of laissez-faire management style has managers and team members only interact when managers are assigning tasks, coming in at the end of the project to review the work.", "a": ["Delegative management style", "Delegative"]}, {"q": "The delegative management style is best for employees who have more of this than their manager.", "a": ["Expertise"]}, {"q": "How many total management styles are discussed in the lecture?", "a": ["Nine", "9"]}, {"q": "According to Dustin Moskovitz, co-founder and CEO of Asana, a leader is more of a coach, or even this kind of guide.", "a": ["Spiritual guide", "spiritual"]}, {"q": "Management styles are primarily about how to provide clear direction on projects and support employees, while leadership styles primarily focus on motivating team members and leading this.", "a": ["Company culture"]}, {"q": "Only what percentage of knowledge workers have a very clear understanding of how their individual work relates to company goals?", "a": ["26%", "26"]}, {"q": "Name one of the four management qualities/responsibilities listed in the lecture (connecting daily tasks to company objectives, assigning and delegating work, providing feedback and professional development, or this fourth one).", "a": ["Encouraging team building and collaboration", "team building and collaboration"]}, {"q": "What is management, as opposed to leadership, described as in the lecture's comparison (operational or inspirational)?", "a": ["Operational"]}, {"q": "According to the quote used in the lecture, management is about setting priorities, evaluating priorities, hiring and firing decisions, and what other type of decisions?", "a": ["Compensation decisions"]}, {"q": "Managerial roles are behaviors adopted to perform various management functions, like leading, planning, organizing, strategizing, and solving what?", "a": ["Problems", "problem-solving"]}, {"q": "This Canadian academic and author developed and classified the managerial roles.", "a": ["Henry Mintzberg", "Mintzberg"]}, {"q": "In what year was Mintzberg's book on managerial roles published?", "a": ["1989"]}, {"q": "What is the title of Henry Mintzberg's book that introduced the managerial roles?", "a": ["Mintzberg on Management: Inside Our Strange World of Organizations", "Mintzberg on Management"]}, {"q": "Name the three broad categories of managerial roles according to Mintzberg (interpersonal, informational, and this third one).", "a": ["Decisional"]}, {"q": "In interpersonal roles, the manager is responsible for providing ideas and what else?", "a": ["Information"]}, {"q": "Name the three interpersonal managerial roles (Figurehead, Leader, and this one).", "a": ["Liaison"]}, {"q": "In informational roles, the manager is responsible for generating or collecting data, then processing and sharing it. Name one of the three informational roles (Monitor, Disseminator, or this one).", "a": ["Spokesperson"]}, {"q": "In decisional roles, the manager uses knowledge gathered together with decision-making and communication to move the organization towards its goals. Name one decisional role.", "a": ["Entrepreneur", "Disturbance-Handler", "Resource Allocator", "Negotiator"]}, {"q": "This managerial role is associated with upper management, usually invested with authority and power, and represents/promotes the company externally.", "a": ["Figurehead"]}, {"q": "This managerial role oversees the performance of an organization, department, or team, sets goals, delegates tasks, and may include HR functions like hiring and training.", "a": ["Leader"]}, {"q": "This managerial role is responsible for developing and maintaining internal and external relationships, serving as a bridge between teams or levels of the chain of command.", "a": ["Liaison"]}, {"q": "This managerial role actively searches for information to assess the business's effectiveness and identify problems and opportunities.", "a": ["Monitor"]}, {"q": "This managerial role collects strategic and technical information from different sources and conveys it to the appropriate people.", "a": ["Disseminator"]}, {"q": "This managerial role is the face of their team or organization, for example presenting results to upper management or at a shareholder's meeting.", "a": ["Spokesperson"]}, {"q": "This managerial role creates change and innovation within the company while managing business processes and solving problems, such as trying new products or forming business partnerships.", "a": ["Entrepreneur"]}, {"q": "This managerial role deals with challenges that arise, managing issues to maintain productivity and keep operations running smoothly.", "a": ["Disturbance Handler", "Disturbance-Handler"]}, {"q": "This managerial role decides how to best allocate organizational resources such as staff, facilities, materials, and equipment.", "a": ["Resource Allocator"]}, {"q": "This managerial role negotiates on behalf of a department or the entire business to achieve the best possible outcome for all concerned.", "a": ["Negotiator"]}, {"q": "How many total managerial roles did Mintzberg identify?", "a": ["Ten", "10"]}, {"q": "Which category of managerial roles includes Figurehead, Leader, and Liaison?", "a": ["Interpersonal roles", "Interpersonal"]}, {"q": "Which category of managerial roles includes Monitor, Disseminator, and Spokesperson?", "a": ["Informational roles", "Informational"]}, {"q": "Which category of managerial roles includes Entrepreneur, Disturbance-Handler, Resource Allocator, and Negotiator?", "a": ["Decisional roles", "Decisional"]}, {"q": "The disturbance handler role may deal with internal issues such as the loss of a valuable employee, or external issues such as an unhappy client or a vendor breaking what?", "a": ["A contract", "contract"]}, {"q": "The negotiator role may need to negotiate with an employee over their salary or with another department to gain access to team members with specific what?", "a": ["Skills"]}, {"q": "Management skills can be defined as certain attributes or abilities that an executive should possess in order to fulfill specific what?", "a": ["Tasks in an organization", "specific tasks"]}, {"q": "This American social and organizational psychologist identified the three basic types of management skills.", "a": ["Robert Katz", "Katz"]}, {"q": "Name the three basic types of management skills according to Robert Katz (technical, conceptual, and this third one).", "a": ["Human or Interpersonal Skills", "Human/Interpersonal Skills", "Human skills"]}, {"q": "This type of management skill gives managers the ability and knowledge to use a variety of techniques, such as operating machines, software, and production tools, to achieve objectives.", "a": ["Technical skills", "Technical"]}, {"q": "This type of management skill involves the knowledge and ability for abstract thinking and formulating ideas, allowing a manager to see an entire concept and diagnose a problem.", "a": ["Conceptual skills", "Conceptual"]}, {"q": "This type of management skill presents a manager's ability to interact, work, or relate effectively with people.", "a": ["Human or Interpersonal Skills", "Human/Interpersonal Skills", "Human skills"]}, {"q": "Name one of the six essential management skills listed in the lecture (Planning, Communication, Decision-making, Delegation, Problem-solving, or Motivating).", "a": ["Planning", "Communication", "Decision-making", "Delegation", "Problem-solving", "Motivating"]}, {"q": "This management skill refers to one's ability to organize activities in line with set guidelines while remaining within the limits of available resources such as time, money, and labor.", "a": ["Planning"]}, {"q": "This management skill determines how well information is shared throughout a team, ensuring the group acts as a unified workforce.", "a": ["Communication"]}, {"q": "This management skill is a key component in a manager's success, where making the right choices results in the success of the organization.", "a": ["Decision-making"]}, {"q": "This management skill is the act of passing on work-related tasks and/or authorities to other employees or subordinates.", "a": ["Delegation"]}, {"q": "This management skill involves identifying a certain problem or situation and finding the best way to handle the problem and get the best solution.", "a": ["Problem-solving"]}, {"q": "This management skill helps bring forth a desired behavior or response from employees or stakeholders, and has two primary types: intrinsic and this other type.", "a": ["Extrinsic"]}, {"q": "Name one of the four ways good management benefits a company according to the lecture (Planning, Organization, Direction, or Control).", "a": ["Planning", "Organization", "Direction", "Control"]}, {"q": "In the benefits of good management, this element refers to good managers knowing about company resources and how to allocate them.", "a": ["Organization"]}, {"q": "In the benefits of good management, this element refers to good managers knowing how to direct and motivate employees.", "a": ["Direction"]}, {"q": "In the benefits of good management, this element refers to good managers ensuring employees execute tasks and making changes when needed.", "a": ["Control"]}, {"q": "Name one recommended way to develop managerial skills mentioned in the lecture (e.g., seeking advice from a mentor, reading books about management, or attending what kind of events?).", "a": ["Training, conferences, and workshops", "conferences and workshops", "industry-related training"]}, {"q": "Besides seeking a mentor and attending training, the lecture recommends joining a public speaking group or taking a public speaking or this type of writing class.", "a": ["Business writing", "business writing class"]}, {"q": "Levels of Management can be generally classified into how many principal categories?", "a": ["Three", "3"]}, {"q": "This level of management consists of an organization's board of directors and the chief executive or managing director, and is the ultimate source of power and authority.", "a": ["Top level of management", "Administrative, Managerial, or Top Level of Management", "Top level"]}, {"q": "This level of management is formed by branch and departmental managers, directly accountable to top management for their departments' functioning.", "a": ["Middle level of management", "Executive or Middle Level of Management", "Middle level"]}, {"q": "This level of management consists of supervisors, foremen, section officers, and superintendents concerned with day-to-day execution and coordination of workflow.", "a": ["Lower level of management", "Supervisory, Operative, or Lower Level of Management", "Lower level", "Supervisory level"]}, {"q": "At the top level of management, one of the responsibilities is preparing strategic plans and what else for the organization?", "a": ["Policies"]}, {"q": "At the middle level of management, managers execute the plans of the organization in accordance with the policies and directives laid out by this level.", "a": ["Top management", "top-level management"]}, {"q": "At the lower level of management, one responsibility is assigning jobs and tasks to various what?", "a": ["Workers"]}, {"q": "Top-level managers are responsible for controlling and overseeing what?", "a": ["The entire organization"]}, {"q": "Middle-level managers act as an intermediary between top-level and this other level of management.", "a": ["Low-level management", "low-level"]}, {"q": "Low-level managers focus on the execution of tasks and deliverables, serving as what for the employees they supervise?", "a": ["Role models"]}, {"q": "As the size of a company and workforce increases, the number of levels in management generally does what?", "a": ["Increases"]}, {"q": "According to the lecture, all skills that engineering managers should have fall into three main categories: human, technical, and this third category.", "a": ["Hybrid"]}, {"q": "This human skill involves holding yourself accountable for your actions and their consequences, which is the mark of a great leader.", "a": ["Accountability"]}, {"q": "This human skill refers to being able to identify, respond to, and manage your own emotions as well as others' emotions.", "a": ["Emotional intelligence"]}, {"q": "This human skill involves developing creative solutions or approaches to project problems, technical processes, or team conflicts.", "a": ["Innovation"]}, {"q": "According to the lecture, the code of ethics for engineers states that they are expected to exhibit the highest standards of honesty and what other quality?", "a": ["Integrity"]}, {"q": "This technical skill relies on engineering expertise in designing, testing, implementing, and integrating a new system and its components.", "a": ["Integration"]}], "mc": [{"q": "Engineering management refers to the activity combining technical knowledge with the ability to organize and coordinate which of the following?", "options": ["Worker power, materials, machinery, and money", "Only worker power and money", "Only machinery and materials", "Sales, marketing, and advertising"], "answer": 0}, {"q": "Management may be defined as the creative problem-solving process of planning, organizing, leading, and controlling an organization's resources to achieve its:", "options": ["Profit margins only", "Mission and objectives", "Shareholder dividends", "Advertising budget"], "answer": 1}, {"q": "Which of the following is NOT one of the four functions in the process of management as described in the lecture?", "options": ["Planning", "Organizing", "Marketing", "Controlling"], "answer": 2}, {"q": "According to Kreitner, which of the following is NOT one of the three general preconditions for achieving lasting success as a manager?", "options": ["Ability", "Motivation to manage", "Opportunity", "Luck"], "answer": 3}, {"q": "According to Higgins, effectiveness is a description of:", "options": ["Whether objectives are accomplished", "The relative amount of resources used", "The salary of the manager", "The size of the organization"], "answer": 0}, {"q": "Efficiency, as described in the lecture, refers to:", "options": ["Whether objectives are accomplished", "The relative amount of resources used in obtaining effectiveness", "The number of employees supervised", "The manager's years of experience"], "answer": 1}, {"q": "Who developed a psychometric instrument to measure an individual's motivation to manage?", "options": ["Henry Mintzberg", "Robert Katz", "John B. Miner", "Dustin Moskovitz"], "answer": 2}, {"q": "Which of the following is one of the two requirements for the \"opportunity\" precondition of successful management?", "options": ["Winning a management award", "Obtaining a suitable managerial job", "Having a large salary", "Owning a business"], "answer": 1}, {"q": "A civil engineer who finishes a 100-kilometer road project within the required eight months, using fewer inputs than expected, is demonstrating both effectiveness and:", "options": ["Efficiency", "Motivation", "Authority", "Delegation"], "answer": 0}, {"q": "Which management style centralizes the decision-making process and is the most top-down approach?", "options": ["Democratic", "Autocratic", "Laissez-faire", "Consultative"], "answer": 1}, {"q": "The autocratic management style is best used when:", "options": ["Team members need creative freedom", "Decisions need to be made quickly, such as in crisis situations", "The team is highly experienced", "There is no time pressure at all"], "answer": 1}, {"q": "Which management style puts decision-making totally in the hands of managers but encourages them to share the logic and rationale behind decisions?", "options": ["Persuasive", "Delegative", "Visionary", "Transformational"], "answer": 0}, {"q": "Which management style is a form of unilateral decision-making where the team's best interests are always kept in mind, though there is no collaboration on the decision itself?", "options": ["Consultative", "Paternalistic", "Democratic", "Laissez-faire"], "answer": 1}, {"q": "Democratic (or participative) managers are best suited for teams that:", "options": ["Need a single decision-maker at all times", "Are constantly looking to change and improve their processes", "Prefer to work with no supervision at all", "Have no interest in company goals"], "answer": 1}, {"q": "Which management style is described as a subset of the democratic style, where managers are consistently looking for feedback and rarely make decisions alone?", "options": ["Consultative", "Autocratic", "Delegative", "Visionary"], "answer": 0}, {"q": "The transformational management style is used predominantly among:", "options": ["Creative teams", "Accounting departments", "Crisis response teams", "New hires only"], "answer": 0}, {"q": "Which management style is the most hands-off, with the term literally translating to \"let it go\" in French?", "options": ["Delegative", "Laissez-faire", "Paternalistic", "Consultative"], "answer": 1}, {"q": "The visionary management style is less concerned with day-to-day operations and more interested in:", "options": ["Micromanaging tasks", "Educating team members about the larger vision of the organization", "Enforcing strict deadlines", "Reducing headcount"], "answer": 1}, {"q": "Which management style has managers and team members interact only when tasks are assigned, with the manager reviewing the work at the end of the project?", "options": ["Delegative", "Autocratic", "Persuasive", "Democratic"], "answer": 0}, {"q": "How many management styles in total are discussed in the lecture?", "options": ["Five", "Seven", "Nine", "Eleven"], "answer": 2}, {"q": "According to the quote attributed to Dustin Moskovitz, a leader is described as more of a coach or even a:", "options": ["Financial officer", "Spiritual guide", "Sales representative", "Board member"], "answer": 1}, {"q": "Management styles are primarily about:", "options": ["Motivating and inspiring a company's culture", "Providing clear direction on projects and supporting employees at the team level", "Setting long-term vision only", "Handling shareholder relations"], "answer": 1}, {"q": "Leadership styles, as distinguished from management styles, primarily focus on:", "options": ["Compensation decisions", "Motivating team members and creative problem-solving", "Hiring and firing decisions", "Budget approvals"], "answer": 1}, {"q": "What percentage of knowledge workers, according to the lecture, have a very clear understanding of how their individual work relates to company goals?", "options": ["10%", "26%", "50%", "75%"], "answer": 1}, {"q": "Who developed the classification of managerial roles discussed in the lecture?", "options": ["Robert Katz", "John B. Miner", "Henry Mintzberg", "Dustin Moskovitz"], "answer": 2}, {"q": "Mintzberg's managerial roles were published in what year, in his book \"Mintzberg on Management\"?", "options": ["1975", "1989", "1995", "2001"], "answer": 1}, {"q": "Which of the following is one of the three broad categories of managerial roles according to Mintzberg?", "options": ["Interpersonal", "Financial", "Operational", "Tactical"], "answer": 0}, {"q": "Which managerial roles fall under the \"interpersonal\" category?", "options": ["Monitor, Disseminator, Spokesperson", "Entrepreneur, Disturbance-Handler, Resource Allocator, Negotiator", "Figurehead, Leader, Liaison", "Planner, Organizer, Controller"], "answer": 2}, {"q": "Which managerial roles fall under the \"informational\" category?", "options": ["Figurehead, Leader, Liaison", "Monitor, Disseminator, Spokesperson", "Entrepreneur, Negotiator", "Accountant, Auditor, Treasurer"], "answer": 1}, {"q": "Which managerial roles fall under the \"decisional\" category?", "options": ["Figurehead, Leader, Liaison", "Monitor, Disseminator, Spokesperson", "Entrepreneur, Disturbance-Handler, Resource Allocator, Negotiator", "Planner, Organizer, Controller"], "answer": 2}, {"q": "The managerial role associated with upper management, invested with authority and power, and responsible for representing the company externally, is called:", "options": ["Liaison", "Figurehead", "Monitor", "Negotiator"], "answer": 1}, {"q": "The managerial role that oversees performance, sets goals, delegates tasks, and may include HR functions like hiring and training, is called:", "options": ["Leader", "Spokesperson", "Disseminator", "Resource Allocator"], "answer": 0}, {"q": "The managerial role responsible for developing and maintaining internal and external relationships, serving as a bridge between teams, is called:", "options": ["Monitor", "Liaison", "Entrepreneur", "Disturbance Handler"], "answer": 1}, {"q": "The managerial role that actively searches for information to assess business effectiveness and identify problems or opportunities is called:", "options": ["Monitor", "Spokesperson", "Negotiator", "Figurehead"], "answer": 0}, {"q": "The managerial role that collects strategic and technical information and conveys it to the appropriate people is called:", "options": ["Disseminator", "Entrepreneur", "Liaison", "Resource Allocator"], "answer": 0}, {"q": "The managerial role in which a manager is the face of their team or organization, for example presenting results at a shareholder's meeting, is called:", "options": ["Figurehead", "Spokesperson", "Monitor", "Disturbance Handler"], "answer": 1}, {"q": "The managerial role that creates change and innovation while managing business processes, such as trying new products, is called:", "options": ["Entrepreneur", "Negotiator", "Liaison", "Monitor"], "answer": 0}, {"q": "The managerial role that deals with challenges that arise, whether internal (like losing an employee) or external (like an unhappy client), is called:", "options": ["Resource Allocator", "Disturbance Handler", "Spokesperson", "Figurehead"], "answer": 1}, {"q": "The managerial role that decides how to best allocate staff, facilities, materials, and equipment is called:", "options": ["Resource Allocator", "Negotiator", "Disseminator", "Leader"], "answer": 0}, {"q": "The managerial role responsible for negotiating on behalf of a department or business to achieve the best possible outcome is called:", "options": ["Negotiator", "Entrepreneur", "Monitor", "Liaison"], "answer": 0}, {"q": "According to Robert Katz, which of the following is NOT one of the three basic types of management skills?", "options": ["Technical skills", "Conceptual skills", "Human/Interpersonal skills", "Financial skills"], "answer": 3}, {"q": "Which type of management skill involves the ability and knowledge to use techniques such as operating machines, software, and production tools?", "options": ["Technical skills", "Conceptual skills", "Human skills", "Hybrid skills"], "answer": 0}, {"q": "Which type of management skill involves abstract thinking, formulating ideas, and diagnosing problems?", "options": ["Human skills", "Conceptual skills", "Technical skills", "Hybrid skills"], "answer": 1}, {"q": "Which of the following is one of the six essential management skills listed in the lecture?", "options": ["Advertising", "Delegation", "Accounting", "Manufacturing"], "answer": 1}, {"q": "The two primary types of motivation a manager can use, as discussed in the lecture, are intrinsic and:", "options": ["External", "Financial", "Extrinsic", "Social"], "answer": 2}, {"q": "Which of the following is one of the four ways good management benefits a company, according to the lecture?", "options": ["Marketing", "Direction", "Recruitment", "Litigation"], "answer": 1}, {"q": "Levels of Management can be generally classified into how many principal categories?", "options": ["Two", "Three", "Four", "Five"], "answer": 1}, {"q": "Which level of management consists of the board of directors and the chief executive or managing director, serving as the ultimate source of power and authority?", "options": ["Lower level", "Middle level", "Top level", "Supervisory level"], "answer": 2}, {"q": "Middle-level managers are directly accountable to top management and mainly focus on:", "options": ["Executing the plans of the organization in accordance with top management's policies", "Setting the overall vision of the company", "Assigning day-to-day tasks to workers only", "Representing the company to shareholders"], "answer": 0}, {"q": "Which level of management consists of supervisors, foremen, section officers, and superintendents primarily concerned with day-to-day execution?", "options": ["Top level", "Middle level", "Lower level", "Executive level"], "answer": 2}]};
+
+/* ================= STATE ================= */
+let currentQuizKey = null;   // 'identification' | 'mc'
+let questions = [];
+let userAnswers = [];        // per-question: {answered: bool, correct: bool, given: string/number}
+let currentIndex = 0;
+let selectedOptionIndex = null;
+
+function normalize(str) {
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:'"()]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function checkIdAnswer(given, acceptableList) {
+  const g = normalize(given);
+  if (!g) return false;
+  for (const acc of acceptableList) {
+    const a = normalize(acc);
+    if (g === a) return true;
+    if (a.length <= 40 && (g.includes(a) || a.includes(g)) && g.length >= Math.max(3, Math.floor(a.length * 0.6))) return true;
+  }
+  return false;
+}
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleMCOptions(q) {
+  const paired = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+  const shuffled = shuffleArray(paired);
+  return {
+    q: q.q,
+    options: shuffled.map(p => p.opt),
+    answer: shuffled.findIndex(p => p.correct)
+  };
+}
+
+/* ================= NAVIGATION ================= */
+function goHome() {
+  document.getElementById('home-screen').classList.remove('hidden');
+  document.getElementById('quiz-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.add('hidden');
+}
+
+function startQuiz(key) {
+  currentQuizKey = key;
+
+  const shuffleQ = document.getElementById('shuffle-question-order').checked;
+  const shuffleC = document.getElementById('shuffle-answer-choices').checked;
+
+  let base = QUIZ_DATA[key].map(q =>
+    key === 'mc'
+      ? { q: q.q, options: q.options.slice(), answer: q.answer }
+      : { q: q.q, a: q.a.slice() }
+  );
+
+  if (key === 'mc' && shuffleC) {
+    base = base.map(shuffleMCOptions);
+  }
+  if (shuffleQ) {
+    base = shuffleArray(base);
+  }
+
+  questions = base;
+  userAnswers = questions.map(() => ({ answered: false, correct: false, given: null }));
+  currentIndex = 0;
+
+  document.getElementById('home-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.add('hidden');
+  document.getElementById('quiz-screen').classList.remove('hidden');
+
+  document.getElementById('quiz-title-label').textContent =
+    (key === 'identification' ? 'Identification' : 'Multiple Choice') + ' Quiz';
+
+  buildJumpGrid();
+  renderQuestion();
+}
+
+function buildJumpGrid() {
+  const grid = document.getElementById('jump-grid');
+  grid.innerHTML = '';
+  questions.forEach((q, i) => {
+    const b = document.createElement('button');
+    b.className = 'jump-btn';
+    b.textContent = i + 1;
+    b.onclick = () => { currentIndex = i; renderQuestion(); };
+    grid.appendChild(b);
+  });
+  refreshJumpGrid();
+}
+
+function refreshJumpGrid() {
+  const grid = document.getElementById('jump-grid');
+  Array.from(grid.children).forEach((btn, i) => {
+    btn.classList.remove('current', 'answered-correct', 'answered-incorrect');
+    if (i === currentIndex) btn.classList.add('current');
+    if (userAnswers[i].answered) {
+      btn.classList.add(userAnswers[i].correct ? 'answered-correct' : 'answered-incorrect');
+    }
+  });
+}
+
+function updateScoreLabel() {
+  const score = userAnswers.filter(a => a.answered && a.correct).length;
+  document.getElementById('quiz-score-label').textContent = 'Score: ' + score;
+}
+
+function updateProgressBar() {
+  const answeredCount = userAnswers.filter(a => a.answered).length;
+  const pct = Math.round((answeredCount / questions.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function renderQuestion() {
+  const q = questions[currentIndex];
+  document.getElementById('question-text').textContent =
+    'Question ' + (currentIndex + 1) + ' of ' + questions.length + ':  ' + q.q;
+
+  const optWrap = document.getElementById('options-container');
+  const idWrap = document.getElementById('id-container');
+  const idInput = document.getElementById('id-input');
+  const feedback = document.getElementById('feedback');
+  feedback.className = 'feedback';
+  feedback.innerHTML = '';
+
+  const prevAnswer = userAnswers[currentIndex];
+
+  if (currentQuizKey === 'mc') {
+    idWrap.classList.add('hidden');
+    optWrap.classList.remove('hidden');
+    optWrap.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.className = 'option-btn';
+      b.textContent = opt;
+      b.dataset.index = i;
+      b.onclick = () => selectOption(i);
+      optWrap.appendChild(b);
+    });
+    if (prevAnswer.answered) {
+      lockOptions(prevAnswer.given, q.answer);
+      showFeedback(prevAnswer.correct, q.options[q.answer]);
+    }
+  } else {
+    optWrap.classList.add('hidden');
+    idWrap.classList.remove('hidden');
+    idInput.value = prevAnswer.answered ? prevAnswer.given : '';
+    idInput.className = 'id-input';
+    idInput.disabled = false;
+    if (prevAnswer.answered) {
+      idInput.disabled = true;
+      idInput.classList.add(prevAnswer.correct ? 'correct' : 'incorrect');
+      showFeedback(prevAnswer.correct, q.a[0]);
+    }
+  }
+
+  document.getElementById('submit-btn').style.display = prevAnswer.answered ? 'none' : 'inline-block';
+  document.getElementById('finish-btn').style.display =
+    (currentIndex === questions.length - 1) ? 'inline-block' : 'none';
+  document.getElementById('prev-btn').disabled = currentIndex === 0;
+  document.getElementById('next-btn').disabled = currentIndex === questions.length - 1;
+
+  updateScoreLabel();
+  updateProgressBar();
+  refreshJumpGrid();
+}
+
+function selectOption(i) {
+  if (userAnswers[currentIndex].answered) return;
+  selectedOptionIndex = i;
+  const optWrap = document.getElementById('options-container');
+  Array.from(optWrap.children).forEach((btn, idx) => {
+    btn.classList.toggle('selected', idx === i);
+  });
+}
+
+function lockOptions(givenIndex, correctIndex) {
+  const optWrap = document.getElementById('options-container');
+  Array.from(optWrap.children).forEach((btn, idx) => {
+    btn.disabled = true;
+    btn.classList.remove('selected');
+    if (idx === correctIndex) btn.classList.add('correct');
+    if (idx === givenIndex && givenIndex !== correctIndex) btn.classList.add('incorrect');
+  });
+}
+
+function showFeedback(correct, correctAnswerText) {
+  const feedback = document.getElementById('feedback');
+  feedback.classList.add('show');
+  feedback.classList.add(correct ? 'correct' : 'incorrect');
+  if (correct) {
+    feedback.innerHTML = 'Correct!';
+  } else {
+    feedback.innerHTML = 'Not quite.<div class="answer-line">Correct answer: ' + correctAnswerText + '</div>';
+  }
+}
+
+function submitAnswer() {
+  const q = questions[currentIndex];
+  if (userAnswers[currentIndex].answered) return;
+
+  if (currentQuizKey === 'mc') {
+    if (selectedOptionIndex === null) {
+      alert('Please select an option first.');
+      return;
+    }
+    const correct = selectedOptionIndex === q.answer;
+    userAnswers[currentIndex] = { answered: true, correct: correct, given: selectedOptionIndex };
+    lockOptions(selectedOptionIndex, q.answer);
+    showFeedback(correct, q.options[q.answer]);
+    selectedOptionIndex = null;
+  } else {
+    const idInput = document.getElementById('id-input');
+    const val = idInput.value.trim();
+    if (!val) {
+      alert('Please type an answer first.');
+      return;
+    }
+    const correct = checkIdAnswer(val, q.a);
+    userAnswers[currentIndex] = { answered: true, correct: correct, given: val };
+    idInput.disabled = true;
+    idInput.classList.add(correct ? 'correct' : 'incorrect');
+    showFeedback(correct, q.a[0]);
+  }
+
+  document.getElementById('submit-btn').style.display = 'none';
+  updateScoreLabel();
+  updateProgressBar();
+  refreshJumpGrid();
+}
+
+function goNext() {
+  if (currentIndex < questions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  }
+}
+
+function goPrev() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion();
+  }
+}
+
+function finishQuiz() {
+  const answeredCount = userAnswers.filter(a => a.answered).length;
+  if (answeredCount < questions.length) {
+    const proceed = confirm('You have ' + (questions.length - answeredCount) + ' unanswered question(s). Finish anyway?');
+    if (!proceed) return;
+  }
+  showResults();
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.remove('hidden');
+
+  const score = userAnswers.filter(a => a.answered && a.correct).length;
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+
+  document.getElementById('result-score').textContent = score + ' / ' + total;
+  document.getElementById('result-pct').textContent = pct + '%';
+
+  let msg;
+  if (pct >= 90) msg = 'Excellent work!';
+  else if (pct >= 75) msg = 'Great Job!';
+  else if (pct >= 50) msg = 'Good effort — keep reviewing!';
+  else msg = 'Keep studying — you\'ll get there!';
+  document.getElementById('result-msg').textContent = msg;
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  questions.forEach((q, i) => {
+    const ans = userAnswers[i];
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    let correctText, givenText;
+    if (currentQuizKey === 'mc') {
+      correctText = q.options[q.answer];
+      givenText = ans.answered ? q.options[ans.given] : '(no answer)';
+    } else {
+      correctText = q.a[0];
+      givenText = ans.answered ? ans.given : '(no answer)';
+    }
+    const statusClass = ans.answered && ans.correct ? 'ans-right' : 'ans-wrong';
+    item.innerHTML =
+      '<div class="q">' + (i + 1) + '. ' + q.q + '</div>' +
+      '<div class="' + statusClass + '">Your answer: ' + givenText + '</div>' +
+      (ans.answered && ans.correct ? '' : '<div class="ans-right">Correct answer: ' + correctText + '</div>');
+    reviewList.appendChild(item);
+  });
+}
+
+function retakeQuiz() {
+  startQuiz(currentQuizKey);
+}
+</script>
+</body>
+</html>
